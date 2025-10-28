@@ -1,2 +1,34 @@
 To bo file, kjer bom prblizno napisu kako pa kaj. Ce ma kdorkol kksne pripombe al pa bolse variante nej pove.
 
+<< STACK >>
+-> Vite + React ->	Frontend (Vite je basically easy verzija hostanja na localserverju pa pol ful olajsa hosting)
+-> TailwindCSS / normal CSS -> Styling (Loh tud cist navadn CSS, to se mormo se zment kaj je komu bols)
+-> Supabase -> Backend + authentication (Google login) za spremljanje podatkov
+-> Framer Motion	-> Helper za animacije?
+-> Vercel -> Hosting + deployment direktno z GitHuba
+
+>> Tuki napiste ce mate kksne bolse ideje / ce komu ni kej usec glede stacka
+> ...
+
+<< APP FLOW >>
+-> Prides na stran (lahko s QR kodo al pa linkom, maybe google search pol al pa kej podobnega), se ti vse prikaze tko js bi dou text generation over time,
+  samo zato da zgleda polished (ful simple samo napises crke al pa besede eno po eno pa dodajas neki casovnega razmika vmes)
+-> Avtomatsko se ti poveze google auth (maybe loh nardimo tud sam guest mode ampak tbh ne vem zakaj bi)
+-> How To Play gumb te vrze na stran kjer mas tko na hitr opisano kako se igra, pa mal opise kaj je na strani (timerji, kje pises odgovor, kako delajo hinti, kaj je cilj igre...)
+-> Play gumb tko slida vse razen Frivia imena v levo, dol z zaslona, in se ti spet zacne izpisvat vprasanje, takoj ko se izpise se zacne odstevat timer (idk 60s)
+  -> Ce ugotovis pravilno se une >> << pod vprasanjem obarvata zeleno pa tko mal pozmigata zeleno (idk)
+  in pol po mal zamika ene 5s (al se pa se hinti odprejo prej da vse vidis) spet vse razen imena slida levo z zaslona na STAT page
+  + zapise se rezultat v database
+  -> Ce ne ugotovis, se ti >> << pa odgovor pobarvajo rdece pa tko zavibrirajo in odgovor zbrise in se ti odpre nov hint (ce mas se na voljo kksnega)
+  -> Kljucavnica nardi minimal open animation in fade-out, ta belo odzadje za kljucavnico se animirano umakne in se pokaze hint k je zadi
+-> Stat page ti potegne vse podatke z databasea in animira une grafe in tvoj rank in podatke in pol je to vec al manj to?
+
+>> Tuki napiste spet ce ma kdo kksno idejo al pa spremembo se, to je samo nek base
+> ...
+
+<< EXTRA >>
+-> Razlicen difficulty vprasanj glede na to kako gre uporabnikom? (Sprotno dolocevanje vprasanj vsak dan)
+-> Prikazovanje zmagovalca? (JA/Ne, kaj, kako)
+
+>> Tuki napiste za karkol dodatnega se
+> ...
