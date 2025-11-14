@@ -2,7 +2,7 @@ To bo file, kjer bom prblizno napisu kako pa kaj. Ce ma kdorkol kksne pripombe a
 
 << STACK >>
 -> Vite + React ->	Frontend (Vite je basically easy verzija hostanja na localserverju pa pol ful olajsa hosting)
--> TailwindCSS / normal CSS -> Styling (Loh tud cist navadn CSS, to se mormo se zment kaj je komu bols)
+-> TailwindCSS-> Styling (Loh tud cist navadn CSS, to se mormo se zment kaj je komu bols)
 -> Supabase -> Backend + authentication (Google login) za spremljanje podatkov
 -> Framer Motion	-> Helper za animacije?
 -> Vercel -> Hosting + deployment direktno z GitHuba
