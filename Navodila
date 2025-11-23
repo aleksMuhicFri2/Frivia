@@ -1,5 +1,11 @@
 1. Frontend. Sara + Maja.
-Pullata repo z githuba pa inicializirata da vse dela -> Najprej naredta samo landing page, to je ta home screen ko prides. Za naprej je pomoje najbols, da ta frivia title ostane en in isti element, ki je vedno na istem fiksnem mestu, pol mas pa za vsako izmed strani ko se premaknes (npr na quiz page pa na stats page), neko slide animacijo spodnjega dela (vse brez naslova Frivia). ce mata kksno bolso idejo za prehod na druge strani, lahko tud drugo, sam bi blo fajn da je tko nekak simple pa clean. Font je pixelon, ki ga lahko najdeta tle: https://befonts.com/pixelon-font.html Pol rabmo pa se dva gumba, to mi je tud dost useeno kako sta oblikovana prblizno tko ko na designu. Play -> transition na game page, how to play pa nism ziher kaj bi sm dou. Ce ma kdo kksne predloge nej kr napise. 
+Pullata repo z githuba pa inicializirata da vse dela -> Najprej naredta samo landing page, to je ta home screen ko prides.
+Za naprej je pomoje najbols, da ta frivia title ostane en in isti element, ki je vedno na istem fiksnem mestu,
+pol mas pa za vsako izmed strani ko se premaknes (npr na quiz page pa na stats page), neko slide animacijo spodnjega dela (vse brez naslova Frivia).
+Ce mata kksno bolso idejo za prehod na druge strani, lahko tud drugo, sam bi blo fajn da je tko nekak simple pa clean.
+Font je pixelon, ki ga lahko najdeta tle: https://befonts.com/pixelon-font.html.
+Pol rabmo pa se dva gumba, to mi je tud dost useeno kako sta oblikovana prblizno tko ko na designu.
+Play -> transition na game page, How to play pa nism ziher kaj bi sm dou. Ce ma kdo kksne predloge nej kr napise. 
 
 2. Backend. Gabi + Matej
 Nekak se zmenta kako bomo mel urejeno skupno bazo (supabase), nism se cist zih kako to dela. Rabl pa bomo verjetno te podatke:
