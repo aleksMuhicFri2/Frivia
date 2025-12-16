@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import defaultTheme from 'tailwindcss/defaultTheme';
 
 export default {
   darkMode: ["class"],
@@ -15,7 +16,7 @@ export default {
     extend: {
       fontFamily: {
         'pixel': ['"Press Start 2P"', 'cursive'],
-        'sans': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        'sans': ['PixelOn', ...defaultTheme.fontFamily.sans],
       },
       colors: {
         border: "hsl(var(--border))",

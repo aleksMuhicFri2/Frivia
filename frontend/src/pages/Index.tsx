@@ -5,6 +5,9 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Timer, Lightbulb, Play, BarChart3, Lock } from "lucide-react";
 import { toast } from "sonner";
+import { Rastvrstice } from "@/components/ui/rastvrstice";
+
+
 type GameState = "home" | "playing" | "correct" | "wrong" | "stats" | "gameover";
 const mockQuestion = {
   question: "What year was Apple created?",
@@ -125,27 +128,27 @@ const Index = () => {
   };
   return <div className="min-h-screen flex flex-col items-center justify-start px-6 sm:px-8 md:px-12 py-4 pt-16 font-pixel text-center">
       {/* Fixed Title */}
-      <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-glow-red mb-12 animate-pulse fixed top-4">
-        FRIVIA
+      <h1 className="text-7xl sm:text-8xl md:text-[9rem] font-extrabold text-white mb-12 animate-pulse fixed top-12 leading-none">
+        <span className="text-primary text-glow-red">FRI</span>VIA
       </h1>
 
       {/* Content Area with Slide Animations */}
       <div className="w-full max-w-3xl mt-32">
         {/* Home Screen */}
         {gameState === "home" && <div className={`text-center space-y-8 ${isTransitioning ? "slide-out-left" : "slide-in-right"}`}>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-2xl md:text-3xl font-medium text-white">
               Daily questions.<br />
               Limited hints.<br />
               Compete with others.
             </p>
 
-            <div className="space-y-4">
+            <div className="space-y-4 md:space-y-0 md:flex md:flex-row md:items-center md:justify-center md:gap-4">
               <Button onClick={startGame} size="lg" className="w-full max-w-xs h-16 text-xl glow-red hover:glow-red-strong transition-all">
                 <Play className="mr-2 h-6 w-6" />
                 PLAY
               </Button>
 
-              <Button onClick={() => navigate("/how-to-play")} variant="outline" size="lg" className="w-full max-w-xs h-14 text-lg border-primary/50 hover:border-primary">
+              <Button onClick={() => navigate("/how-to-play")} variant="outline" size="lg" className="w-full max-w-xs h-16 text-xl border-white/100 hover:border-white">
                 How To Play
               </Button>
             </div>
@@ -163,7 +166,7 @@ const Index = () => {
               <span className={`text-2xl transition-all ${showAnswerFeedback === "correct" ? "text-success blink-green" : showAnswerFeedback === "wrong" ? "text-destructive vibrate-red" : "text-muted-foreground"}`}>
                 &gt;&gt;
               </span>
-              <Input value={userAnswer} onChange={e => setUserAnswer(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSubmit()} placeholder="Your answer..." className={`h-14 text-lg border-primary/50 focus:border-primary w-full max-w-xl text-center placeholder:text-sm ${showAnswerFeedback === "wrong" ? "text-destructive vibrate-red" : ""}`} disabled={showAnswerFeedback !== null} />
+                <Input value={userAnswer} onChange={e => setUserAnswer(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSubmit()} placeholder="Your answer..." className={`h-14 text-lg border-primary/50 focus:border-primary w-full max-w-xl text-center placeholder:text-sm ${showAnswerFeedback === "wrong" ? "text-destructive vibrate-red" : ""}`} disabled={showAnswerFeedback !== null} />
               <span className={`text-2xl transition-all ${showAnswerFeedback === "correct" ? "text-success blink-green" : showAnswerFeedback === "wrong" ? "text-destructive vibrate-red" : "text-muted-foreground"}`}>
                 &lt;&lt;
               </span>
@@ -228,7 +231,7 @@ const Index = () => {
               <div className="space-y-4">
                 <div className="text-center pb-4 border-b border-border">
                   <div className="text-sm text-muted-foreground mb-1">The correct answer was:</div>
-                  <div className="text-3xl font-bold text-primary">{mockQuestion.correctAnswer}</div>
+                  <div className="text-3xl font-normal text-primary">{mockQuestion.correctAnswer}</div>
                 </div>
 
                 <div className="text-center">
@@ -243,7 +246,7 @@ const Index = () => {
             setGameState("home");
             setIsTransitioning(false);
           }, 500);
-        }} variant="outline" size="lg" className="w-full h-12 border-primary/50 hover:border-primary">
+        }} variant="outline" size="lg" className="w-full max-w-xs h-16 text-xl border-white/100 hover:border-white">
               Back to Home
             </Button>
           </div>}
@@ -260,15 +263,15 @@ const Index = () => {
                 <div className="grid grid-cols-3 gap-4 text-center pb-4 mb-4 border-b border-border items-end my-0">
                   <div>
                     <div className="text-sm text-muted-foreground mb-1">Games</div>
-                    <div className="text-2xl font-bold">13</div>
+                    <div className="text-2xl font-normal">13</div>
                   </div>
                   <div>
                     <div className="text-sm text-muted-foreground mb-1">Avg. Score</div>
-                    <div className="text-xl font-bold">3.35</div>
+                    <div className="text-xl font-normal">3.35</div>
                   </div>
                   <div>
                     <div className="text-sm text-muted-foreground mb-1">Avg. Time</div>
-                    <div className="text-xl font-bold">17.5s</div>
+                    <div className="text-xl font-normal">17.5s</div>
                   </div>
                 </div>
 
@@ -276,15 +279,15 @@ const Index = () => {
                 <div className="grid grid-cols-3 gap-4 text-center pb-4 border-b border-border">
                   <div>
                     <div className="text-sm text-muted-foreground mb-1">Players</div>
-                    <div className="text-xl font-bold my-[25px]">105</div>
+                    <div className="text-xl font-normal">105</div>
                   </div>
                   <div>
                     <div className="text-sm text-muted-foreground mb-1">Avg. Score</div>
-                    <div className="text-xl font-bold">3.47</div>
+                    <div className="text-xl font-normal">3.47</div>
                   </div>
                   <div>
                     <div className="text-sm text-muted-foreground mb-1">My Rank</div>
-                    <div className="text-xl font-bold text-primary">14.</div>
+                    <div className="text-xl font-normal text-primary">14.</div>
                   </div>
                 </div>
 
@@ -311,13 +314,12 @@ const Index = () => {
                 hints: 3,
                 score: 7
               }].map(player => <div key={player.rank} className={`flex items-center gap-4 p-2 rounded ${player.highlight ? "bg-primary/20 border border-primary" : ""}`}>
-                      <div className="w-8 text-center font-bold">{player.rank}</div>
-                      <div className="flex-1 h-8 bg-background border border-border rounded overflow-hidden">
-                        <div className={`h-full ${player.highlight ? "bg-primary" : "bg-muted"}`} style={{
-                    width: `${player.rank === 2 ? 30 : Math.random() * 60 + 20}%`
-                  }} />
-                      </div>
-                      <div className="w-12 text-right font-bold">{player.score}</div>
+                      <div className="w-8 text-center font-normal">{player.rank}</div>
+                      
+                      <Rastvrstice
+                        score={player.score}
+                        highlight={player.highlight}
+                      />
                     </div>)}
                 </div>
               </div>
@@ -329,7 +331,7 @@ const Index = () => {
             setGameState("home");
             setIsTransitioning(false);
           }, 500);
-        }} variant="outline" size="lg" className="w-full h-12 border-primary/50 hover:border-primary">
+        }} variant="outline" size="lg" className="w-full max-w-xs h-14 text-xl border-white/400 hover:border-white">
               Back to Home
             </Button>
           </div>}
