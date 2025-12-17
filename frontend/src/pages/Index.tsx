@@ -40,12 +40,12 @@ const Index = () => {
   const [gameState, setGameState] = useState<GameState>("home");
   const [timeRemaining, setTimeRemaining] = useState(60);
   const [hintsRevealed, setHintsRevealed] = useState(0);
-  const [hintsAvailable, setHintsAvailable] = useState(0);
+  const [revealedHints, setRevealedHints] = useState<boolean[]>([false, false, false]);
   const [userAnswer, setUserAnswer] = useState("");
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showAnswerFeedback, setShowAnswerFeedback] = useState<"correct" | "wrong" | null>(null);
   useEffect(() => {
-    if (gameState === "playing" && timeRemaining > 0) {
+    if (gameState === "playing" && timeRemaining > 0 && showAnswerFeedback !== "correct") {
       const timer = setInterval(() => {
         setTimeRemaining(prev => {
           if (prev <= 1) {
@@ -63,20 +63,9 @@ const Index = () => {
       }, 1000);
       return () => clearInterval(timer);
     }
-  }, [gameState, timeRemaining]);
+  }, [gameState, timeRemaining, showAnswerFeedback]);
 
-  // Track available hints based on timer
-  useEffect(() => {
-    if (gameState === "playing") {
-      if (timeRemaining <= 45 && hintsAvailable < 1) {
-        setHintsAvailable(1);
-      } else if (timeRemaining <= 30 && hintsAvailable < 2) {
-        setHintsAvailable(2);
-      } else if (timeRemaining <= 15 && hintsAvailable < 3) {
-        setHintsAvailable(3);
-      }
-    }
-  }, [gameState, timeRemaining, hintsAvailable]);
+  // Hints are now available on demand (player can reveal any of the 3 hints at any time)
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -88,29 +77,35 @@ const Index = () => {
       setGameState("playing");
       setTimeRemaining(60);
       setHintsRevealed(0);
-      setHintsAvailable(0);
+      setRevealedHints([false, false, false]);
       setUserAnswer("");
       setShowAnswerFeedback(null);
       setIsTransitioning(false);
     }, 500);
   };
   const revealHint = (hintIndex: number) => {
-    if (hintIndex < hintsAvailable && hintIndex >= hintsRevealed) {
-      setHintsRevealed(hintIndex + 1);
-    }
+    setRevealedHints(prev => {
+      if (prev[hintIndex]) return prev;
+      const next = [...prev];
+      next[hintIndex] = true;
+      return next;
+    });
+    setHintsRevealed(prevCount => prevCount + 1);
   };
   const handleSubmit = () => {
     if (!userAnswer.trim()) return;
     const isCorrect = userAnswer.trim().toLowerCase() === mockQuestion.correctAnswer.toLowerCase();
-    if (isCorrect) {
-      setShowAnswerFeedback("correct");
+    if (isCorrect) {      // Haptic feedback
+      if (navigator.vibrate) {
+        navigator.vibrate([100, 50, 100]);
+      }      setShowAnswerFeedback("correct");
       setTimeout(() => {
         setIsTransitioning(true);
         setTimeout(() => {
           setGameState("stats");
           setIsTransitioning(false);
         }, 500);
-      }, 5000);
+      }, 1000);
     } else {
       setShowAnswerFeedback("wrong");
       setTimeout(() => {
@@ -184,38 +179,44 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Hints */}
-            <div className="space-y-3 mt-8">
-            {[{
-            idx: 0,
-            unlockTime: 45
-          }, {
-            idx: 1,
-            unlockTime: 30
-          }, {
-            idx: 2,
-            unlockTime: 15
-          }].map(({
-            idx,
-            unlockTime
-          }) => <div key={idx} className="relative">
-                  {hintsRevealed > idx ? <div className="p-4 bg-background border border-border rounded fade-in">
-                      <p className="text-muted-foreground">{mockQuestion.hints[idx]}</p>
-                    </div> : hintsAvailable > idx ? <Button onClick={() => revealHint(idx)} variant="outline" className="w-full p-4 h-auto border-primary/50 hover:border-primary">
+         {/*Hints*/}
+            <div className="space-y-3 mt-8 max-w-2xl mx-auto">
+              {[0, 1, 2].map((idx) => {
+                const isRevealed = revealedHints[idx];
+                
+                return (
+                  <div key={idx} className="relative w-full h-14 overflow-hidden rounded-lg">
+                    {/* Zaklenjen gumb */}
+                    <div 
+                      className={`absolute inset-0 border-2 flex items-center px-4 transition-all duration-500 ease-in-out rounded-lg ${
+                        isRevealed 
+                          ? 'transform translate-x-full opacity-0' 
+                          : 'transform translate-x-0 opacity-100'
+                      } bg-white text-black border-black hover:border-primary cursor-pointer`}
+                      onClick={() => !isRevealed && revealHint(idx)}
+                    >
                       <div className="flex items-center justify-between w-full">
-                        <span>Unlock Hint {idx + 1}</span>
+                        <span className="text-sm">{`Reveal Hint ${idx + 1}`}</span>
                         <Lock className="h-5 w-5" />
                       </div>
-                    </Button> : <div className="w-full p-4 bg-card border border-border rounded relative overflow-hidden opacity-50">
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Hint {idx + 1}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground">Available at {unlockTime}s</span>
-                          <Lock className="h-5 w-5 text-muted-foreground" />
-                        </div>
+                    </div>
+                    
+                    {/* Odklenjeno vsebina */}
+                    <div 
+                      className={`absolute inset-0 border-2 flex items-center px-4 transition-all duration-500 ease-in-out rounded-lg ${
+                        isRevealed 
+                          ? 'transform translate-x-0 opacity-100' 
+                          : 'transform -translate-x-full opacity-0'
+                      } bg-black text-white border-white`}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <p className="text-sm">{mockQuestion.hints[idx]}</p>
+                        <div className="w-5 h-5"></div>
                       </div>
-                    </div>}
-                </div>)}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>}
 
@@ -224,18 +225,15 @@ const Index = () => {
             <div className="text-center">
               <div className="text-6xl mb-4">​</div>
               <h2 className="text-4xl font-bold mb-2 text-destructive">TIME'S UP!</h2>
-              <p className="text-xl text-muted-foreground mb-8">Better luck next time!</p>
+              <p className="text-xl text-white mb-8">Better luck next time!</p>
             </div>
 
-            <Card className="p-6 bg-card border-destructive/30">
+            <Card className="p-6 bg-card border-white/30">
               <div className="space-y-4">
-                <div className="text-center pb-4 border-b border-border">
-                  <div className="text-sm text-muted-foreground mb-1">The correct answer was:</div>
+                  <div className="text-sm text-white mb-1">The correct answer was:</div>
                   <div className="text-3xl font-normal text-primary">{mockQuestion.correctAnswer}</div>
-                </div>
-
                 <div className="text-center">
-                  <div className="text-sm text-muted-foreground mb-2">Come back tomorrow for a new question!</div>
+                  <div className="text-sm text-white mb-2">Come back tomorrow for a new question!</div>
                 </div>
               </div>
             </Card>
@@ -246,48 +244,48 @@ const Index = () => {
             setGameState("home");
             setIsTransitioning(false);
           }, 500);
-        }} variant="outline" size="lg" className="w-full max-w-xs h-16 text-xl border-white/100 hover:border-white">
+        }} variant="outline" size="lg" className="w-full max-w-xs h-16 text-xl border-2 border-white/100 hover:border-white">
               Back to Home
             </Button>
           </div>}
 
         {/* Stats Screen */}
-        {gameState === "stats" && <div className={`space-y-6 ${isTransitioning ? "slide-out-left" : "slide-in-right"}`}>
+        {gameState === "stats" && <div className={`space-y-6 text-white ${isTransitioning ? "slide-out-left" : "slide-in-right"}`}>
             <div className="text-center">
               
               <h2 className="font-bold mb-2 text-xl text-red-700">Congratulations!</h2>
-              <p className="text-xl text-muted-foreground mb-8">Your stats:</p>
+              <p className="text-xl text-white mb-8">Your stats:</p>
             </div>
 
             <Card className="p-6 bg-card border-primary/30">​<div className="space-y-4">
-                <div className="grid grid-cols-3 gap-4 text-center pb-4 mb-4 border-b border-border items-end my-0">
+                <div className="grid grid-cols-3 gap-4 text-center pb-4 mb-4 border-b border-white items-end my-0">
                   <div>
-                    <div className="text-sm text-muted-foreground mb-1">Games</div>
-                    <div className="text-2xl font-normal">13</div>
+                    <div className="text-sm text-white mb-1">Games</div>
+                    <div className="text-2xl font-normal text-white">13</div>
                   </div>
                   <div>
-                    <div className="text-sm text-muted-foreground mb-1">Avg. Score</div>
-                    <div className="text-xl font-normal">3.35</div>
+                    <div className="text-sm text-white mb-1">Avg. Score</div>
+                    <div className="text-xl font-normal text-white">3.35</div>
                   </div>
                   <div>
-                    <div className="text-sm text-muted-foreground mb-1">Avg. Time</div>
-                    <div className="text-xl font-normal">17.5s</div>
+                    <div className="text-sm text-white mb-1">Avg. Time</div>
+                    <div className="text-xl font-normal text-white">17.5s</div>
                   </div>
                 </div>
 
-                <div className="text-sm text-muted-foreground mb-2">Today's results:</div>
-                <div className="grid grid-cols-3 gap-4 text-center pb-4 border-b border-border">
+                <div className="text-mm font-bold text-destructive mb-3">Today's results:</div>
+                <div className="grid grid-cols-3 gap-4 text-center pb-4 border-b border-white">
                   <div>
-                    <div className="text-sm text-muted-foreground mb-1">Players</div>
-                    <div className="text-xl font-normal">105</div>
+                    <div className="text-sm text-white mb-1">Players</div>
+                    <div className="text-xl font-normal text-white">105</div>
                   </div>
                   <div>
-                    <div className="text-sm text-muted-foreground mb-1">Avg. Score</div>
-                    <div className="text-xl font-normal">3.47</div>
+                    <div className="text-sm text-white mb-1">Avg. Score</div>
+                    <div className="text-xl font-normal text-white">3.47</div>
                   </div>
                   <div>
-                    <div className="text-sm text-muted-foreground mb-1">My Rank</div>
-                    <div className="text-xl font-normal text-primary">14.</div>
+                    <div className="text-sm text-white mb-1">My Rank</div>
+                    <div className="text-xl font-normal text-destructive">14.</div>
                   </div>
                 </div>
 
@@ -313,7 +311,7 @@ const Index = () => {
                 rank: 5,
                 hints: 3,
                 score: 7
-              }].map(player => <div key={player.rank} className={`flex items-center gap-4 p-2 rounded ${player.highlight ? "bg-primary/20 border border-primary" : ""}`}>
+              }].map(player => <div key={player.rank} className="flex items-center gap-4 p-2 rounded">
                       <div className="w-8 text-center font-normal">{player.rank}</div>
                       
                       <Rastvrstice
@@ -331,7 +329,7 @@ const Index = () => {
             setGameState("home");
             setIsTransitioning(false);
           }, 500);
-        }} variant="outline" size="lg" className="w-full max-w-xs h-14 text-xl border-white/400 hover:border-white">
+        }} variant="outline" size="lg" className="w-full max-w-xs h-14 text-xl border-2 border-white hover:border-white">
               Back to Home
             </Button>
           </div>}
