@@ -86,7 +86,7 @@ const HowToPlay = () => {
               <h2 className="text-xl text-primary">HINTS</h2>
             </div>
             <p className="text-sm leading-relaxed mb-6">
-              Each question comes with <strong>3 hints</strong> that unlock automatically at specific time intervals:
+              Each question comes with <strong>3 hints</strong> that you can reveal at any time by clicking the "Reveal" button. Using a hint will lower your potential score, so use them wisely.
             </p>
             
             <div className="space-y-4">
@@ -94,7 +94,7 @@ const HowToPlay = () => {
               <div className="border border-border p-4 rounded-lg bg-background/50">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-bold text-primary text-xs">HINT 1</span>
-                  <span className="text-xs text-muted-foreground">Unlocks at 45s</span>
+                  <span className="text-xs text-muted-foreground">Reveal anytime</span>
                 </div>
                 <div className="p-3 bg-card border border-success rounded">
                   <p className="text-success text-xs">This data structure uses LIFO principle</p>
@@ -105,7 +105,7 @@ const HowToPlay = () => {
               <div className="border border-border p-4 rounded-lg bg-background/50">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-bold text-primary text-xs">HINT 2</span>
-                  <span className="text-xs text-muted-foreground">Unlocks at 30s</span>
+                  <span className="text-xs text-muted-foreground">Reveal anytime</span>
                 </div>
                 <div className="p-3 bg-card border border-warning rounded">
                   <p className="text-warning text-xs">Think about plates stacked on top</p>
@@ -116,7 +116,7 @@ const HowToPlay = () => {
               <div className="border border-border p-4 rounded-lg bg-background/50">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-bold text-primary text-xs">HINT 3</span>
-                  <span className="text-xs text-muted-foreground">Unlocks at 15s</span>
+                  <span className="text-xs text-muted-foreground">Reveal anytime</span>
                 </div>
                 <div className="p-3 bg-card border border-destructive rounded">
                   <p className="text-destructive text-xs">push() and pop() operations</p>
@@ -125,8 +125,8 @@ const HowToPlay = () => {
             </div>
 
             <div className="mt-6 p-4 bg-muted/20 rounded border border-muted">
-              <p className="text-xs text-muted-foreground">
-                💡 <strong>Pro Tip:</strong> Hints reduce your potential score, so try to answer before they unlock!
+                <p className="text-xs text-muted-foreground">
+                💡 <strong>Pro Tip:</strong> Hints reduce your potential score, so try to answer before revealing them!
               </p>
             </div>
           </section>

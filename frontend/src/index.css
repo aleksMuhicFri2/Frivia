@@ -112,7 +112,7 @@ All colors MUST be HSL.
   }
 
   .blink-green {
-    animation: blink-green 0.5s ease-in-out 3;
+    animation: blink-green 0.3s ease-in-out 2;
   }
 
   .vibrate-red {
@@ -166,6 +166,62 @@ All colors MUST be HSL.
 }
 
 }
+
+  /* Hint button/box animation (custom) */
+  .hint-container {
+    position: relative;
+    width: 100%;
+    min-height: 56px;
+     min-width: 100%; /* Zagotovi, da se razširi na celotno širino */
+  }
+
+  .hint-button {
+    background: white;
+    color: black;
+    border: 2px solid black;
+    padding: 12px 24px;
+    font-size: 16px;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    text-align: left;
+    transition: transform 0.5s ease, opacity 0.4s ease, width 0.5s ease;
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+  }
+
+  /* Button "disappears" to the right */
+  .hint-button--hide {
+    transform: translateX(120%) scaleX(0);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .hint-box {
+    /* occupy same area as button so reveal doesn't shift layout */
+    position: absolute;
+    inset: 0;
+    background: black;
+    color: white;
+    padding: 16px;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    box-sizing: border-box;
+    pointer-events: none;
+    z-index: 1;
+    width: 100%; /* Zagotovi, da je tudi polje za namig široko */
+  }
+
+  /* Reveal */
+  .hint-box--show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    z-index: 2;
+    
+  }
 
 @keyframes pulse-red {
   0%, 100% {

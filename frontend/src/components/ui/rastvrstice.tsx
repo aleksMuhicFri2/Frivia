@@ -6,7 +6,7 @@ type Props = {
 };
 
 const MAX_SCORE = 40;
-const ANIMATION_DURATION = 1000; // ms
+const ANIMATION_DURATION = 1300; // ms
 
 export const Rastvrstice = ({ score, highlight }: Props) => {
   const [width, setWidth] = useState("0%");
@@ -14,7 +14,7 @@ export const Rastvrstice = ({ score, highlight }: Props) => {
 
   useEffect(() => {
   const start = performance.now();
-  const step = 2; // šteje po 2: 1,3,5...
+  const step = 1; // šteje po 2: 1,3,5...
 
   const animate = (now: number) => {
     const elapsed = now - start;
@@ -62,7 +62,7 @@ return (
       >
         {/* številka na koncu */}
         <span
-          className={`absolute top-1/2 -translate-y-1/2 text-sm font-bold tabular-nums ${
+          className={`absolute top-1/2 -translate-y-1/2 text-sm tabular-nums ${
             highlight ? "text-red-500" : "text-neutral-200"
           }`}
           style={{
