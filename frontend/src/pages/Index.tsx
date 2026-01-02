@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Rastvrstice } from "@/components/ui/rastvrstice";
 
 
-type GameState = "home" | "playing" | "correct" | "wrong" | "stats" | "gameover";
+type GameState = "home" | "playing" | "playing-answered" | "correct" | "wrong" | "stats" | "gameover";
 const mockQuestion = {
   question: "What year was Apple created?",
   correctAnswer: "1976",
@@ -37,6 +37,7 @@ const mockLeaderboard = [{
 }];
 const Index = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [gameState, setGameState] = useState<GameState>("home");
   const [timeRemaining, setTimeRemaining] = useState(60);
   const [hintsRevealed, setHintsRevealed] = useState(0);
@@ -44,6 +45,16 @@ const Index = () => {
   const [userAnswer, setUserAnswer] = useState("");
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showAnswerFeedback, setShowAnswerFeedback] = useState<"correct" | "wrong" | null>(null);
+  
+  // Avtomatski začetek igre, če prihaja iz HowToPlay strani
+  useEffect(() => {
+    if (location.state?.autoStart) {
+      startGame();
+      // Počisti state
+      window.history.replaceState({}, document.title);
+    }
+  }, []);
+  
   useEffect(() => {
     if (gameState === "playing" && timeRemaining > 0 && showAnswerFeedback !== "correct") {
       const timer = setInterval(() => {
@@ -86,6 +97,11 @@ const Index = () => {
   const revealHint = (hintIndex: number) => {
     setRevealedHints(prev => {
       if (prev[hintIndex]) return prev;
+      // Preveri, ali so vsi prejšnji hintsnji odklenjeni
+      if (hintIndex > 0 && !prev[hintIndex - 1]) {
+        toast.error(`Najprej odkleni Hint ${hintIndex}!`);
+        return prev;
+      }
       const next = [...prev];
       next[hintIndex] = true;
       return next;
@@ -98,7 +114,10 @@ const Index = () => {
     if (isCorrect) {      // Haptic feedback
       if (navigator.vibrate) {
         navigator.vibrate([100, 50, 100]);
-      }      setShowAnswerFeedback("correct");
+      }
+      // Takoj ustavi timer in pojdi na stats
+      setGameState("playing-answered");
+      setShowAnswerFeedback("correct");
       setTimeout(() => {
         setIsTransitioning(true);
         setTimeout(() => {
@@ -121,14 +140,14 @@ const Index = () => {
       setIsTransitioning(false);
     }, 500);
   };
-  return <div className="min-h-screen flex flex-col items-center justify-start px-6 sm:px-8 md:px-12 py-4 pt-16 font-pixel text-center">
+  return <div className="min-h-screen flex flex-col items-center justify-start px-6 sm:px-8 md:px-12 py-4 font-pixel text-center">
       {/* Fixed Title */}
-      <h1 className="text-7xl sm:text-8xl md:text-[9rem] font-extrabold text-white mb-12 animate-pulse fixed top-12 leading-none">
+      <h1 className="text-7xl sm:text-8xl md:text-[9rem] font-extrabold text-white mb-12 animate-pulse leading-none">
         <span className="text-primary text-glow-red">FRI</span>VIA
       </h1>
 
       {/* Content Area with Slide Animations */}
-      <div className="w-full max-w-3xl mt-32">
+      <div className="w-full max-w-3xl mb-8">
         {/* Home Screen */}
         {gameState === "home" && <div className={`text-center space-y-8 ${isTransitioning ? "slide-out-left" : "slide-in-right"}`}>
             <p className="text-2xl md:text-3xl font-medium text-white">
@@ -183,6 +202,7 @@ const Index = () => {
             <div className="space-y-3 mt-8 max-w-2xl mx-auto">
               {[0, 1, 2].map((idx) => {
                 const isRevealed = revealedHints[idx];
+                const isLocked = idx > 0 && !revealedHints[idx - 1];
                 
                 return (
                   <div key={idx} className="relative w-full h-14 overflow-hidden rounded-lg">
@@ -192,8 +212,12 @@ const Index = () => {
                         isRevealed 
                           ? 'transform translate-x-full opacity-0' 
                           : 'transform translate-x-0 opacity-100'
-                      } bg-white text-black border-black hover:border-primary cursor-pointer`}
-                      onClick={() => !isRevealed && revealHint(idx)}
+                      } ${
+                        isLocked
+                          ? 'bg-gray-600 text-gray-400 border-gray-500 cursor-not-allowed'
+                          : 'bg-white text-black border-black hover:border-primary cursor-pointer'
+                      }`}
+                      onClick={() => !isRevealed && !isLocked && revealHint(idx)}
                     >
                       <div className="flex items-center justify-between w-full">
                         <span className="text-sm">{`Reveal Hint ${idx + 1}`}</span>
@@ -223,7 +247,6 @@ const Index = () => {
         {/* Game Over Screen */}
         {gameState === "gameover" && <div className={`space-y-6 ${isTransitioning ? "slide-out-left" : "slide-in-right"}`}>
             <div className="text-center">
-              <div className="text-6xl mb-4">​</div>
               <h2 className="text-4xl font-bold mb-2 text-destructive">TIME'S UP!</h2>
               <p className="text-xl text-white mb-8">Better luck next time!</p>
             </div>
@@ -234,6 +257,74 @@ const Index = () => {
                   <div className="text-3xl font-normal text-primary">{mockQuestion.correctAnswer}</div>
                 <div className="text-center">
                   <div className="text-sm text-white mb-2">Come back tomorrow for a new question!</div>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="p-6 bg-card border-primary/30">
+              <div className="space-y-4">
+                <div className="grid grid-cols-3 gap-4 text-center pb-4 mb-4 border-b border-white items-end my-0">
+                  <div>
+                    <div className="text-sm text-white mb-1">Games</div>
+                    <div className="text-2xl font-normal text-white">13</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-white mb-1">Avg. Score</div>
+                    <div className="text-xl font-normal text-white">3.35</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-white mb-1">Avg. Time</div>
+                    <div className="text-xl font-normal text-white">17.5s</div>
+                  </div>
+                </div>
+
+                <div className="text-mm font-bold text-destructive mb-3">Today's results:</div>
+                <div className="grid grid-cols-3 gap-4 text-center pb-4 border-b border-white">
+                  <div>
+                    <div className="text-sm text-white mb-1">Players</div>
+                    <div className="text-xl font-normal text-white">105</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-white mb-1">Avg. Score</div>
+                    <div className="text-xl font-normal text-white">3.47</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-white mb-1">My Rank</div>
+                    <div className="text-xl font-normal text-destructive">14.</div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  {[{
+                rank: 1,
+                hints: 5,
+                score: 11
+              }, {
+                rank: 2,
+                hints: "?",
+                score: 17,
+                highlight: true
+              }, {
+                rank: 3,
+                hints: 12,
+                score: 39
+              }, {
+                rank: 4,
+                hints: 10,
+                score: 31
+              }, {
+                rank: 5,
+                hints: 3,
+                score: 7
+              }].map(player => <div key={player.rank} className="flex items-center gap-4 p-2 rounded">
+                      <div className="w-8 text-center font-normal">{player.rank}</div>
+                      
+                      <Rastvrstice
+                        score={player.score}
+                        highlight={player.highlight}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </Card>

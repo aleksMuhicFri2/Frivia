@@ -146,16 +146,12 @@ const HowToPlay = () => {
                 <span className="text-primary">•</span>
                 <span><strong>Number of hints used</strong> (fewer is better)</span>
               </li>
-              <li className="flex items-start gap-3">
-                <span className="text-primary">•</span>
-                <span><strong>Correctness</strong> of your answer</span>
-              </li>
             </ul>
           </section>
 
           {/* Ready Button */}
           <div className="text-center pt-4 pb-8">
-            <Button onClick={() => navigate("/")} size="lg" className="text-sm px-8 glow-red hover:glow-red-strong">
+            <Button onClick={() => navigate("/", { state: { autoStart: true } })} size="lg" className="text-sm px-8 glow-red hover:glow-red-strong">
               READY TO PLAY
             </Button>
           </div>
