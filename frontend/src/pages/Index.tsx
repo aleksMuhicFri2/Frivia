@@ -261,23 +261,8 @@ const Index = () => {
               </div>
             </Card>
 
-            <Card className="p-6 bg-card border-primary/30">
-              <div className="space-y-4">
-                <div className="grid grid-cols-3 gap-4 text-center pb-4 mb-4 border-b border-white items-end my-0">
-                  <div>
-                    <div className="text-sm text-white mb-1">Games</div>
-                    <div className="text-2xl font-normal text-white">13</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-white mb-1">Avg. Score</div>
-                    <div className="text-xl font-normal text-white">3.35</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-white mb-1">Avg. Time</div>
-                    <div className="text-xl font-normal text-white">17.5s</div>
-                  </div>
-                </div>
-
+            <Card className="p-2 bg-card border-primary/30">
+              <div className="space-y-2">
                 <div className="text-mm font-bold text-destructive mb-3">Today's results:</div>
                 <div className="grid grid-cols-3 gap-4 text-center pb-4 border-b border-white">
                   <div>
@@ -345,22 +330,17 @@ const Index = () => {
             <div className="text-center">
               
               <h2 className="font-bold mb-2 text-xl text-red-700">Congratulations!</h2>
-              <p className="text-xl text-white mb-8">Your stats:</p>
             </div>
 
-            <Card className="p-6 bg-card border-primary/30">​<div className="space-y-4">
-                <div className="grid grid-cols-3 gap-4 text-center pb-4 mb-4 border-b border-white items-end my-0">
+            <Card className="pt-2 px-6 pb-6 bg-card border-primary/30">​<div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4 text-center pb-4 mb-2 border-b border-white items-end -my-2">
                   <div>
-                    <div className="text-sm text-white mb-1">Games</div>
-                    <div className="text-2xl font-normal text-white">13</div>
+                    <div className="text-sm text-white mb-1">Your time</div>
+                    <div className="text-xl font-normal text-white">{60 - timeRemaining}s</div>
                   </div>
                   <div>
-                    <div className="text-sm text-white mb-1">Avg. Score</div>
-                    <div className="text-xl font-normal text-white">3.35</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-white mb-1">Avg. Time</div>
-                    <div className="text-xl font-normal text-white">17.5s</div>
+                    <div className="text-sm text-white mb-1">Your Score</div>
+                    <div className="text-xl font-normal text-white">42</div>
                   </div>
                 </div>
 
