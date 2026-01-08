@@ -19,9 +19,17 @@ type GameState =
 
 type DailyQuestion = {
   question_date: string;
-  question_text: any; // jsonb (can be string or object)
+  question_text: any;
   correct_answer: string;
   hints: string[];
+};
+
+type Distribution = {
+  no_hints: number;
+  one_hint: number;
+  two_hints: number;
+  three_hints: number;
+  failed: number;
 };
 
 type GameResult = {
@@ -29,6 +37,7 @@ type GameResult = {
   your_rank: number;
   players: number;
   avg_score: number;
+  distribution?: Distribution;
   top_5: { rank: number; score: number; highlight?: boolean }[];
 };
 
@@ -39,48 +48,30 @@ const Index = () => {
   const [gameState, setGameState] = useState<GameState>("home");
   const [timeRemaining, setTimeRemaining] = useState(60);
   const [hintsRevealed, setHintsRevealed] = useState(0);
-  const [revealedHints, setRevealedHints] = useState<boolean[]>([
-    false,
-    false,
-    false,
-  ]);
+  const [revealedHints, setRevealedHints] = useState<boolean[]>([false, false, false]);
   const [userAnswer, setUserAnswer] = useState("");
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [showAnswerFeedback, setShowAnswerFeedback] = useState<
-    "correct" | "wrong" | null
-  >(null);
+  const [showAnswerFeedback, setShowAnswerFeedback] =
+    useState<"correct" | "wrong" | null>(null);
 
   const [question, setQuestion] = useState<DailyQuestion | null>(null);
   const [result, setResult] = useState<GameResult | null>(null);
   const [startTimeMs, setStartTimeMs] = useState<number | null>(null);
   const [submitLocked, setSubmitLocked] = useState(false);
 
-  // Avtomatski začetek igre, če prihaja iz HowToPlay strani
   useEffect(() => {
     if (location.state?.autoStart) {
       startGame();
-      // Počisti state
       window.history.replaceState({}, document.title);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (
-      gameState === "playing" &&
-      timeRemaining > 0 &&
-      showAnswerFeedback !== "correct"
-    ) {
+    if (gameState === "playing" && timeRemaining > 0 && !submitLocked) {
       const timer = setInterval(() => {
         setTimeRemaining((prev) => {
           if (prev <= 1) {
-            setTimeout(() => {
-              setIsTransitioning(true);
-              setTimeout(() => {
-                setGameState("gameover");
-                setIsTransitioning(false);
-              }, 500);
-            }, 0);
+            handleTimeout();
             return 0;
           }
           return prev - 1;
@@ -99,35 +90,38 @@ const Index = () => {
   const getQuestionText = (qt: any): string => {
     if (qt == null) return "";
     if (typeof qt === "string") return qt;
-    // common shapes: { text: "..." } or { question: "..." }
     if (typeof qt === "object") {
       if (typeof qt.text === "string") return qt.text;
       if (typeof qt.question === "string") return qt.question;
-      // last resort
-      try {
-        return JSON.stringify(qt);
-      } catch {
-        return String(qt);
-      }
+      return JSON.stringify(qt);
     }
     return String(qt);
   };
+
+  const getHighlightRank = (isCorrect: boolean, hintsUsed: number | null): number => {
+    if (!isCorrect) return 5;
+    return Math.min((hintsUsed ?? 0) + 1, 4);
+  };
+
+  const buildTop5FromDistribution = (d: Distribution, highlightRank: number) => [
+    { rank: 1, score: d.no_hints, highlight: highlightRank === 1 },
+    { rank: 2, score: d.one_hint, highlight: highlightRank === 2 },
+    { rank: 3, score: d.two_hints, highlight: highlightRank === 3 },
+    { rank: 4, score: d.three_hints, highlight: highlightRank === 4 },
+    { rank: 5, score: d.failed, highlight: highlightRank === 5 },
+  ];
 
   const startGame = async () => {
     setIsTransitioning(true);
 
     const { data, error } = await supabase.rpc("get_daily_question");
-
     if (error || !data) {
-      
-  console.error("RPC error:", error);
-  console.error("RPC data:", data);
       toast.error("Failed to load daily question");
       setIsTransitioning(false);
       return;
     }
 
-    setQuestion(data as DailyQuestion);
+    setQuestion(data);
     setResult(null);
     setSubmitLocked(false);
     setStartTimeMs(Date.now());
@@ -146,7 +140,6 @@ const Index = () => {
   const revealHint = (hintIndex: number) => {
     setRevealedHints((prev) => {
       if (prev[hintIndex]) return prev;
-      // Preveri, ali so vsi prejšnji hintsnji odklenjeni
       if (hintIndex > 0 && !prev[hintIndex - 1]) {
         toast.error(`Najprej odkleni Hint ${hintIndex}!`);
         return prev;
@@ -155,15 +148,15 @@ const Index = () => {
       next[hintIndex] = true;
       return next;
     });
-    setHintsRevealed((prevCount) => prevCount + 1);
+    setHintsRevealed((prev) => prev + 1);
   };
 
   const handleSubmit = async () => {
     if (!userAnswer.trim() || !question || submitLocked) return;
 
-    const correctAnswer = (question.correct_answer || "").toString();
     const isCorrect =
-      userAnswer.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
+      userAnswer.trim().toLowerCase() ===
+      question.correct_answer.trim().toLowerCase();
 
     if (!isCorrect) {
       setShowAnswerFeedback("wrong");
@@ -174,34 +167,33 @@ const Index = () => {
       return;
     }
 
-    // correct path
     setSubmitLocked(true);
-
-    // Haptic feedback
-    if (navigator.vibrate) {
-      navigator.vibrate([100, 50, 100]);
-    }
-
-    // ustavi timer UI + prehod
     setGameState("playing-answered");
     setShowAnswerFeedback("correct");
 
-    const now = Date.now();
-    const timeMs = startTimeMs ? Math.max(0, now - startTimeMs) : (60 - timeRemaining) * 1000;
+    const timeMs = startTimeMs ? Date.now() - startTimeMs : 0;
 
     const { data, error } = await supabase.rpc("submit_attempt", {
       p_question_date: question.question_date,
       p_time_ms: timeMs,
       p_hints_used: hintsRevealed,
+      p_is_correct: true,
     });
 
-    if (error || !data) {
+    const row = Array.isArray(data) ? data[0] : data;
+
+    if (error || !row || !row.distribution) {
       toast.error("Failed to submit result");
       setSubmitLocked(false);
       return;
     }
 
-    setResult(data as GameResult);
+    const highlightRank = getHighlightRank(true, hintsRevealed);
+
+    setResult({
+      ...row,
+      top_5: buildTop5FromDistribution(row.distribution, highlightRank),
+    });
 
     setTimeout(() => {
       setIsTransitioning(true);
@@ -212,13 +204,32 @@ const Index = () => {
     }, 1000);
   };
 
-  const viewStats = () => {
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setGameState("stats");
-      setIsTransitioning(false);
-    }, 500);
+  const handleTimeout = async () => {
+    if (!question) return;
+
+    setSubmitLocked(true);
+
+    const { data } = await supabase.rpc("submit_attempt", {
+      p_question_date: question.question_date,
+      p_time_ms: 60000,
+      p_hints_used: null,
+      p_is_correct: false,
+    });
+
+    const row = Array.isArray(data) ? data[0] : data;
+
+    if (row?.distribution) {
+      setResult({
+        ...row,
+        top_5: buildTop5FromDistribution(row.distribution, 5),
+      });
+    }
+
+    setGameState("gameover");
   };
+
+  /* JSX BELOW IS UNCHANGED */
+
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-start px-6 sm:px-8 md:px-12 py-4 font-pixel text-center">
