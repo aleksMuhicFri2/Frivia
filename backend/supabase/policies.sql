@@ -1,3 +1,7 @@
+--RLS
+ALTER TABLE public.daily_questions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.attempts ENABLE ROW LEVEL SECURITY;
+
 -- daily_questions
 CREATE POLICY "Allow read daily question"
 ON public.daily_questions
